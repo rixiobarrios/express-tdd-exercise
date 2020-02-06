@@ -57,26 +57,16 @@ describe("POST /candies", () => {
   });
 });
 
-//1. Write a test that makes sure the object returned when you GET the /candies/:id route with a specific ID contains the right fields
+//1. Write a test that makes sure the object is returned with right fields (i.e., id, name, color) when you call GET /candies/:id.
 describe("GET /candies/:id", () => {
-  let id;
-  before(done => {
+  it("should return a candy with correct fields", done => {
     api
-      .get("/candies")
+      .get("/candies/1")
       .set("Accept", "application/json")
       .end((error, response) => {
-        id = response.body[0].id;
-        done();
-      });
-  });
-  it("retrieves a candy by it's id with the correct fields", done => {
-    api
-      .get(`/candies/${id}`)
-      .set("Accept", "application/json")
-      .end((error, response) => {
-        expect(response.body.id).to.equal(id);
-        expect(response.body.name).to.be.a("string");
-        expect(response.body.color).to.be.a("string");
+        expect(response.body).to.have.property("id");
+        expect(response.body).to.have.property("name");
+        expect(response.body).to.have.property("color");
         done();
       });
   });
@@ -107,13 +97,15 @@ describe("DELETE /candies/:id", () => {
       });
   });
 
-  it("deletes a candy by id", done => {
+  it("should have 1 less candy than the original array", done => {
     api
       .get("/candies")
       .set("Accept", "application/json")
       .end((error, response) => {
+        // assert that the response.body has decreased by 1
         expect(response.body.length).to.equal(previousLength - 1);
-        expect(response.body.find(candy => candy.id == idToDelete)).to.equal(
+        // assert that the deleted candy is not in response.body
+        expect(response.body.find(candy => candy.id === idToDelete)).to.equal(
           undefined
         );
         done();
